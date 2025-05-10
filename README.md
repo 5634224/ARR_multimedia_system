@@ -1,4 +1,4 @@
-# Servidor multimedia + Servidores de descargas
+# Servidor multimedia + Servidor de descargas
 ¿Deseas montarte el sistema multimedia y de descargas definitivo? Estás en el repo adecuado 😉.
 En esta guía aprenderás a montar un sistema con:
 - Sonarr (para indexar las series)
