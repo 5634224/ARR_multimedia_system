@@ -26,7 +26,7 @@ services:
       # - net.ipv6.conf.all.forwarding=1
       # - net.ipv6.conf.all.accept_ra=2
     volumes:
-      - multiserver/config/cloudflare-warp-vpn:/var/lib/cloudflare-warp
+      - ./config/cloudflare-warp-vpn:/var/lib/cloudflare-warp
     networks:
       vpn_network:
         ipv4_address: 192.168.255.2 # fixed IPv4
@@ -46,7 +46,7 @@ services:
       vpn_network:
         ipv4_address: 192.168.255.3 # fixed IPv4
     volumes:
-      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+      - ./config/scripts/entrypoint.sh:/customentrypoint.sh:ro
     entrypoint: "/customentrypoint.sh"
     # command: >
     #   /bin/sh -c "ip route replace default via 192.168.255.2;"
@@ -75,7 +75,7 @@ services:
       vpn_network:
         ipv4_address: 192.168.255.4 # fixed IPv4
     volumes:
-      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+      - ./config/scripts/entrypoint.sh:/customentrypoint.sh:ro
     entrypoint: "/customentrypoint.sh"
 
   sonarr:
@@ -87,10 +87,10 @@ services:
       - TZ=Europe/Madrid
       - ENTRYPOINT=/init
     volumes:
-      - multiserver/config/sonarr:/config
-      - multiserver/config/ssl:/config/ssl:ro
-      - multiserver/data:/data
-      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+      - ./config/sonarr:/config
+      - ./config/ssl:/config/ssl:ro
+      - ./data:/data
+      - ./config/scripts/entrypoint.sh:/customentrypoint.sh:ro
     entrypoint: "/customentrypoint.sh"
     ports:
       - "8989:8989"
@@ -110,10 +110,10 @@ services:
       - TZ=Europe/Madrid
       - ENTRYPOINT=/init
     volumes:
-      - multiserver/config/radarr:/config
-      - multiserver/config/ssl:/config/ssl:ro
-      - multiserver/data:/data
-      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+      - ./config/radarr:/config
+      - ./config/ssl:/config/ssl:ro
+      - ./data:/data
+      - ./config/scripts/entrypoint.sh:/customentrypoint.sh:ro
     entrypoint: "/customentrypoint.sh"
     ports:
       - "7878:7878"
@@ -133,10 +133,10 @@ services:
       - TZ=Europe/Madrid
       - ENTRYPOINT=/init
     volumes:
-      - multiserver/config/bazarr:/config
-      - multiserver/config/ssl:/config/ssl:ro
-      - multiserver/data:/data
-      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+      - ./config/bazarr:/config
+      - ./config/ssl:/config/ssl:ro
+      - ./data:/data
+      - ./config/scripts/entrypoint.sh:/customentrypoint.sh:ro
     entrypoint: "/customentrypoint.sh"
     ports:
       - "6767:6767"
@@ -156,11 +156,11 @@ services:
       - TZ=Europe/Madrid
       - ENTRYPOINT=/init
     volumes:
-      - multiserver/config/readarr:/config
-      - multiserver/config/ssl:/config/ssl:ro
-      - multiserver/data:/data #optional
+      - ./config/readarr:/config
+      - ./config/ssl:/config/ssl:ro
+      - ./data:/data #optional
       #- /path/to/downloadclient-downloads:/downloads #optional
-      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+      - ./config/scripts/entrypoint.sh:/customentrypoint.sh:ro
     entrypoint: "/customentrypoint.sh"
     ports:
       - 8787:8787
@@ -180,9 +180,9 @@ services:
       - TZ=Europe/Madrid
       - ENTRYPOINT=/init
     volumes:
-      - multiserver/config/prowlarr:/config
-      - multiserver/config/ssl:/config/ssl:ro
-      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+      - ./config/prowlarr:/config
+      - ./config/ssl:/config/ssl:ro
+      - ./config/scripts/entrypoint.sh:/customentrypoint.sh:ro
     ports:
       - "9696:9696"
       - "6969:6969"
@@ -204,10 +204,10 @@ services:
       - WEBUI_PORT=9090
       - ENTRYPOINT=/init
     volumes:
-      - multiserver/config/qbittorrent:/config
-      - multiserver/config/ssl:/config/ssl:ro
-      - multiserver/data/torrents:/data/torrents
-      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+      - ./config/qbittorrent:/config
+      - ./config/ssl:/config/ssl:ro
+      - ./data/torrents:/data/torrents
+      - ./config/scripts/entrypoint.sh:/customentrypoint.sh:ro
     entrypoint: "/customentrypoint.sh"
     ports:
       - "9090:9090"
@@ -227,8 +227,8 @@ services:
   #     - PGID=1000
   #     - TZ=Europe/Madrid
   #   volumes:
-  #     - multiserver/config/sabnzbd:/config
-  #     - multiserver/data/usenet:/data/usenet
+  #     - ./config/sabnzbd:/config
+  #     - ./data/usenet:/data/usenet
   #   ports:
   #     - "8086:8080"
   #   networks:
@@ -245,10 +245,10 @@ services:
       - TZ=Europe/Madrid
       #- JELLYFIN_PublishedServerUrl=http://192.168.1.60:8096 #optional
     volumes:
-      - multiserver/config/jellyfin:/config
-      - multiserver/cache/jellyfin:/cache # optional
-      - multiserver/config/ssl:/config/ssl:ro
-      - multiserver/data/media:/data/media
+      - ./config/jellyfin:/config
+      - ./cache/jellyfin:/cache # optional
+      - ./config/ssl:/config/ssl:ro
+      - ./data/media:/data/media
     ports:
       - 8096:8096
       - 8920:8920 #optional

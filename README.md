@@ -106,7 +106,7 @@ docker network create --driver bridge --subnet=192.168.255.0/24 --ipv6 --subnet=
 Una vez ejecutado el script de creación de la estructura de carpetas, se habrá creado una copia del fichero docker-compose.yml del repositorio en tu carpeta `multiserver`.
 **AVISO**: Asegúrate de adaptar las direcciones IP a su entorno local, deben estar dentro de la subred que creamos en el paso anterior.
 
-Asegúrate de revisar que los siguientes contenedores no hayan cambiado su entrypoint, ya que de lo contrario, deberás actualizarlo en la variable de entorno:
+Asegúrate de revisar que los siguientes contenedores no hayan cambiado su entrypoint, ya que de lo contrario, deberás actualizarlo en la variable de entorno `ENTRYPOINT`:
 - flaresolver
 - instantprivacy
 - sonarr
