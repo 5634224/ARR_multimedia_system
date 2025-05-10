@@ -48,17 +48,6 @@ services:
     volumes:
       - ./config/scripts/entrypoint.sh:/customentrypoint.sh:ro
     entrypoint: "/customentrypoint.sh"
-    # command: >
-    #   /bin/sh -c "ip route replace default via 192.168.255.2;"
-    # post_start:
-    #   - command: "ip route replace default via 192.168.255.2"
-    #     user: root
-    # command: >
-    #   /bin/sh -c "GATEWAY=$(ip route show default | awk '{print $3}');
-    #   ip route add 192.168.1.0/24 via $GATEWAY;
-    #   ip route del default &&
-    #   ip route add default via $(getent hosts cloudflare-warp | awk '{print $1}');
-    #   exec /usr/bin/dumb-init -- /usr/local/bin/python -u /app/flaresolverr.py"
     restart: unless-stopped
 
   instantprivacy:
