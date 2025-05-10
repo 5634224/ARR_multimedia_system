@@ -1,0 +1,263 @@
+services:
+  warp:
+    image: caomingjun/warp
+    container_name: cloudflare-warp
+    restart: unless-stopped
+    # add removed rule back (https://github.com/opencontainers/runc/pull/3468)
+    device_cgroup_rules:
+      - 'c 10:200 rwm'
+    ports:
+      - "1080:1080"
+    environment:
+      - WARP_SLEEP=2
+      # - WARP_LICENSE_KEY= # optional
+      - WARP_ENABLE_NAT=1 # enable nat
+    cap_add:
+      # Docker already have them, these are for podman users
+      - MKNOD
+      - AUDIT_WRITE
+      # additional required cap for warp, both for podman and docker
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1 # default = 0
+      - net.ipv4.conf.all.src_valid_mark=1
+      # uncomment for nat
+      - net.ipv4.ip_forward=1
+      # - net.ipv6.conf.all.forwarding=1
+      # - net.ipv6.conf.all.accept_ra=2
+    volumes:
+      - multiserver/config/cloudflare-warp-vpn:/var/lib/cloudflare-warp
+    networks:
+      vpn_network:
+        ipv4_address: 192.168.255.2 # fixed IPv4
+
+  flaresolver:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolver
+    environment:
+      - LOG_LEVEL=debug       # Cambiar a debug para mayor detalle
+      - TZ=Europe/Madrid
+      - ENTRYPOINT=/usr/bin/dumb-init -- /usr/local/bin/python -u /app/flaresolverr.py # custom
+    ports:
+      - "8191:8191"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpn_network:
+        ipv4_address: 192.168.255.3 # fixed IPv4
+    volumes:
+      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+    entrypoint: "/customentrypoint.sh"
+    # command: >
+    #   /bin/sh -c "ip route replace default via 192.168.255.2;"
+    # post_start:
+    #   - command: "ip route replace default via 192.168.255.2"
+    #     user: root
+    # command: >
+    #   /bin/sh -c "GATEWAY=$(ip route show default | awk '{print $3}');
+    #   ip route add 192.168.1.0/24 via $GATEWAY;
+    #   ip route del default &&
+    #   ip route add default via $(getent hosts cloudflare-warp | awk '{print $1}');
+    #   exec /usr/bin/dumb-init -- /usr/local/bin/python -u /app/flaresolverr.py"
+    restart: unless-stopped
+
+  instantprivacy:
+    image: linuxconfig/instantprivacy
+    container_name: instantprivacy # alias "privoxy" flag in prowlarr
+    environment:
+      - ENTRYPOINT=/usr/bin/supervisord
+    ports:
+      - "8118:8118"
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpn_network:
+        ipv4_address: 192.168.255.4 # fixed IPv4
+    volumes:
+      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+    entrypoint: "/customentrypoint.sh"
+
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Madrid
+      - ENTRYPOINT=/init
+    volumes:
+      - multiserver/config/sonarr:/config
+      - multiserver/config/ssl:/config/ssl:ro
+      - multiserver/data:/data
+      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+    entrypoint: "/customentrypoint.sh"
+    ports:
+      - "8989:8989"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpn_network:
+        ipv4_address: 192.168.255.5 # fixed IPv4
+    restart: unless-stopped
+
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Madrid
+      - ENTRYPOINT=/init
+    volumes:
+      - multiserver/config/radarr:/config
+      - multiserver/config/ssl:/config/ssl:ro
+      - multiserver/data:/data
+      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+    entrypoint: "/customentrypoint.sh"
+    ports:
+      - "7878:7878"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpn_network:
+        ipv4_address: 192.168.255.6 # fixed IPv4
+    restart: unless-stopped
+
+  bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Madrid
+      - ENTRYPOINT=/init
+    volumes:
+      - multiserver/config/bazarr:/config
+      - multiserver/config/ssl:/config/ssl:ro
+      - multiserver/data:/data
+      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+    entrypoint: "/customentrypoint.sh"
+    ports:
+      - "6767:6767"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpn_network:
+        ipv4_address: 192.168.255.7 # fixed IPv4
+    restart: unless-stopped
+
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Madrid
+      - ENTRYPOINT=/init
+    volumes:
+      - multiserver/config/readarr:/config
+      - multiserver/config/ssl:/config/ssl:ro
+      - multiserver/data:/data #optional
+      #- /path/to/downloadclient-downloads:/downloads #optional
+      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+    entrypoint: "/customentrypoint.sh"
+    ports:
+      - 8787:8787
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpn_network:
+        ipv4_address: 192.168.255.8 # fixed IPv4
+    restart: unless-stopped
+
+  prowlarr:
+    image: linuxserver/prowlarr
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Madrid
+      - ENTRYPOINT=/init
+    volumes:
+      - multiserver/config/prowlarr:/config
+      - multiserver/config/ssl:/config/ssl:ro
+      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+    ports:
+      - "9696:9696"
+      - "6969:6969"
+    entrypoint: "/customentrypoint.sh"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpn_network:
+        ipv4_address: 192.168.255.9 # fixed IPv4
+    restart: unless-stopped
+
+  qbittorrent:
+    image: linuxserver/qbittorrent
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Madrid
+      - WEBUI_PORT=9090
+      - ENTRYPOINT=/init
+    volumes:
+      - multiserver/config/qbittorrent:/config
+      - multiserver/config/ssl:/config/ssl:ro
+      - multiserver/data/torrents:/data/torrents
+      - multiserver/config/scripts/entrypoint.sh:/customentrypoint.sh:ro
+    entrypoint: "/customentrypoint.sh"
+    ports:
+      - "9090:9090"
+      - "9091:9443"  # HTTPS
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpn_network:
+        ipv4_address: 192.168.255.10 # fixed IPv4
+    restart: unless-stopped
+
+  # sabnzbd:
+  #   image: linuxserver/sabnzbd
+  #   container_name: sabnzbd
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/Madrid
+  #   volumes:
+  #     - multiserver/config/sabnzbd:/config
+  #     - multiserver/data/usenet:/data/usenet
+  #   ports:
+  #     - "8086:8080"
+  #   networks:
+  #     - vpn_network
+  #   restart: unless-stopped
+
+  jellyfin:
+    #image: jellyfin/jellyfin
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Madrid
+      #- JELLYFIN_PublishedServerUrl=http://192.168.1.60:8096 #optional
+    volumes:
+      - multiserver/config/jellyfin:/config
+      - multiserver/cache/jellyfin:/cache # optional
+      - multiserver/config/ssl:/config/ssl:ro
+      - multiserver/data/media:/data/media
+    ports:
+      - 8096:8096
+      - 8920:8920 #optional
+      - 7359:7359/udp #optional
+      - 1900:1900/udp #optional
+    network_mode: host # para que funcione la función DLNA
+    restart: unless-stopped
+
+networks:
+  vpn_network:
+    #driver: bridge
+    external: true
