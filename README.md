@@ -32,7 +32,7 @@ git clone https://github.com/5634224/ARR_multimedia_system
 
 3. Generar red interna docker para el stack, con direcciones IP **ESTÁTICAS**.
 
-3. Después, ejecuta docker-compose up -d para iniciar el stack.
+3. Después, ejecuta `docker-compose up -d` para iniciar el stack.
 
 ## Crear la estructura de carpetas recomendada por las guías de las ARR Apps
 Este es el árbol general de directorios que propongo para desplegar el stack.
